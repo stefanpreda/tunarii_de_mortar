@@ -1,0 +1,31 @@
+# =============== #
+# Unity generated #
+# =============== #
+explosive_pacman/Temp/
+explosive_pacman/Library/
+
+# ===================================== #
+# Visual Studio / MonoDevelop generated #
+# ===================================== #
+explosive_pacman/ExportedObj/
+explosive_pacman/obj/
+explosive_pacman/*.svd
+explosive_pacman/*.userprefs
+explosive_pacman/*.csproj
+explosive_pacman/*.pidb
+explosive_pacman/*.suo
+explosive_pacman/*.sln
+explosive_pacman/*.user
+explosive_pacman/*.unityproj
+explosive_pacman/*.booproj
+
+# ============ #
+# OS generated #
+# ============ #
+explosive_pacman/.DS_Store
+explosive_pacman/.DS_Store?
+explosive_pacman/._*
+explosive_pacman/.Spotlight-V100
+explosive_pacman/.Trashes
+explosive_pacman/ehthumbs.db
+explosive_pacman/Thumbs.db
