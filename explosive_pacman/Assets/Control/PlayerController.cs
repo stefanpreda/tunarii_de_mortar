@@ -8,8 +8,6 @@ public class PlayerController : NetworkBehaviour
 
     void Start()
     {
-        //anim = NetworkServer.FindLocalObject(netId).GetComponent<Animator>();
-        //anim = GetComponent<NetworkAnimator>();
         anim = GetComponent<Animator>();
     }
 
