@@ -18,28 +18,28 @@ public class PlayerController : NetworkBehaviour
             return;
         }
 
-        if (Input.GetKey(KeyCode.A))
+        if (Input.GetKey(KeyCode.A) || Input.GetKey("left"))
         {
             anim.SetBool("left", true);
             anim.SetBool("right", false);
             anim.SetBool("up", false);
             anim.SetBool("down", false);
         }
-        else if (Input.GetKey(KeyCode.D))
+        else if (Input.GetKey(KeyCode.D) || Input.GetKey("right"))
         {
             anim.SetBool("left", false);
             anim.SetBool("right", true);
             anim.SetBool("up", false);
             anim.SetBool("down", false);
         }
-        else if (Input.GetKey(KeyCode.W))
+        else if (Input.GetKey(KeyCode.W) || Input.GetKey("up"))
         {
             anim.SetBool("left", false);
             anim.SetBool("right", false);
             anim.SetBool("up", true);
             anim.SetBool("down", false);
         }
-        else if (Input.GetKey(KeyCode.S))
+        else if (Input.GetKey(KeyCode.S) || Input.GetKey("down"))
         {
             anim.SetBool("left", false);
             anim.SetBool("right", false);
