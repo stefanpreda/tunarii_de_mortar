@@ -1,11 +1,15 @@
 ﻿using UnityEngine;
 using UnityEngine.Networking;
 
+//This class controls player movement and animations
+//Attach this to Character only
 public class PlayerController : NetworkBehaviour
 {
     Animator anim;
     public float speed = 11.0f;
 
+
+    //Initialization function
     void Start()
     {
         anim = GetComponent<Animator>();
@@ -13,11 +17,13 @@ public class PlayerController : NetworkBehaviour
 
     void Update()
     {
+        //Not the current player or invalid animation
         if (!isLocalPlayer || anim == null)
         {
             return;
         }
 
+        //When moving animation is set accordingly
         if (Input.GetKey(KeyCode.A) || Input.GetKey("left"))
         {
             anim.SetBool("left", true);
@@ -50,6 +56,8 @@ public class PlayerController : NetworkBehaviour
         var x = Input.GetAxis("Horizontal") * Time.deltaTime * speed;
         var y = Input.GetAxis("Vertical") * Time.deltaTime * speed;
 
+        //This moves the character
         transform.Translate(x, y, 0);
+
     }
 }
