@@ -5,7 +5,9 @@ using UnityEngine.Networking;
 //Attach this to Character only
 public class PlayerController : NetworkBehaviour
 {
-    Animator anim;
+    private Animator anim;
+    private Rigidbody2D body;
+
     public float speed = 11.0f;
 
 
@@ -13,6 +15,7 @@ public class PlayerController : NetworkBehaviour
     void Start()
     {
         anim = GetComponent<Animator>();
+        body = GetComponent<Rigidbody2D>();
     }
 
     void Update()
@@ -30,6 +33,7 @@ public class PlayerController : NetworkBehaviour
             anim.SetBool("right", false);
             anim.SetBool("up", false);
             anim.SetBool("down", false);
+            body.velocity = new Vector2(-speed, 0);
         }
         else if (Input.GetKey(KeyCode.D) || Input.GetKey("right"))
         {
@@ -37,6 +41,7 @@ public class PlayerController : NetworkBehaviour
             anim.SetBool("right", true);
             anim.SetBool("up", false);
             anim.SetBool("down", false);
+            body.velocity = new Vector2(speed, 0);
         }
         else if (Input.GetKey(KeyCode.W) || Input.GetKey("up"))
         {
@@ -44,6 +49,7 @@ public class PlayerController : NetworkBehaviour
             anim.SetBool("right", false);
             anim.SetBool("up", true);
             anim.SetBool("down", false);
+            body.velocity = new Vector2(0, speed);
         }
         else if (Input.GetKey(KeyCode.S) || Input.GetKey("down"))
         {
@@ -51,13 +57,7 @@ public class PlayerController : NetworkBehaviour
             anim.SetBool("right", false);
             anim.SetBool("up", false);
             anim.SetBool("down", true);
+            body.velocity = new Vector2(0, -speed);
         }
-
-        var x = Input.GetAxis("Horizontal") * Time.deltaTime * speed;
-        var y = Input.GetAxis("Vertical") * Time.deltaTime * speed;
-
-        //This moves the character
-        transform.Translate(x, y, 0);
-
     }
 }

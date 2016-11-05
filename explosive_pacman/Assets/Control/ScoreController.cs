@@ -1,12 +1,15 @@
 ﻿using UnityEngine;
+using UnityEngine.Networking;
 
 //Class which controls the score for the character
 //Attach this to Character only
-public class ScoreController : MonoBehaviour {
+public class ScoreController : NetworkBehaviour {
 
     public int start_score = 50;
     public int win_score = 100;
     public int score_delta = 5;
+
+    [SyncVar(hook = "modifyScore")]
     private int current_score;
 
     //Attacker or Runner
@@ -16,24 +19,32 @@ public class ScoreController : MonoBehaviour {
 	void Start () {
         current_score = start_score;
 	}
-	
-	public void increaseScore()
-    {
-        current_score += score_delta;
-        if (current_score >= win_score)
-        {
-            current_score = win_score;
-            Debug.Log("WON");
-        }
-    }
 
-    public void decreaseScore()
+    public void modifyScore(int way)
     {
-        current_score -= score_delta;
-        if (current_score <= 0)
+
+        if (!isServer)
         {
-            current_score = 0;
-            Debug.Log("LOST");
+            return;
+        }
+
+        if (way == 0)
+        {
+            current_score -= score_delta;
+            if (current_score <= 0)
+            {
+                current_score = 0;
+                Debug.Log("LOST");
+            }
+        }
+        else if (way == 1)
+        {
+            current_score += score_delta;
+            if (current_score >= win_score)
+            {
+                current_score = win_score;
+                Debug.Log("WON");
+            }
         }
     }
 

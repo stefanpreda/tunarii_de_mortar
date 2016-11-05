@@ -2,21 +2,23 @@
 
 //This class should be responsible for actions taken in case of collision
 //Attach this to Character only
-//TODO: Collision must be active in Unity
-public class CollisionController : MonoBehaviour {
+//TODO: Check if this is actually called
+public class CollisionController : MonoBehaviour
+{
 
     void OnCollisionEnter(Collision collision)
     {
-
         //Get object that was hit
         var hit = collision.gameObject;
+
+        hit.GetComponent<Rigidbody2D>().isKinematic = true;
 
         //Get the score controller for the hit object
         var score_controller = hit.GetComponent<ScoreController>();
 
         if (score_controller == null)
             return;
-   
+
         //Get common network data
         NetworkManagerData network_data =
             GameObject.FindGameObjectWithTag("NetworkManagerData").GetComponent<NetworkManagerData>();
@@ -29,6 +31,12 @@ public class CollisionController : MonoBehaviour {
 
         //TODO: Check which player was hit, get the corresponding player status, adjust score accordingly
 
-        Destroy(gameObject);
+        //Destroy(gameObject);
+    }
+
+    void OnCollisionExit(Collision collision)
+    {
+        var hit = collision.gameObject;
+        hit.GetComponent<Rigidbody2D>().isKinematic = false;
     }
 }
