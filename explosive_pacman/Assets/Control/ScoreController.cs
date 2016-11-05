@@ -3,6 +3,7 @@ using UnityEngine.Networking;
 
 //Class which controls the score for the character
 //Attach this to Character only
+//TODO: Status is not set yet, it should be done in DataIntegrity every X seconds
 public class ScoreController : NetworkBehaviour {
 
     public int start_score = 50;
@@ -12,7 +13,7 @@ public class ScoreController : NetworkBehaviour {
     [SyncVar(hook = "modifyScore")]
     private int current_score;
 
-    //Attacker or Runner
+    //1 = Attacker or 0 = Runner
     private int status;
 
 	// Initialization function
