@@ -21,18 +21,6 @@ public class CollisionController : MonoBehaviour
             return;
         }
 
-        //Get common network data
-        DataIntegrity network_data = gameObject.GetComponent<DataIntegrity>();
-
-        if (network_data == null)
-        {
-            Debug.Log("NULL player data");
-            return;
-        }
-
-        //Get players as GameObjects
-        var player_list = network_data.getPlayerList();
-
         //Adjust the score accordingly
         if (score_controller_self.getStatus() == 0 && score_controller_target.getStatus() == 1)
         {
@@ -46,13 +34,6 @@ public class CollisionController : MonoBehaviour
             score_controller_target.modifyScore(0);
         }
 
-        //Destroy(gameObject);
     }
 
-    void OnCollisionExit2D(Collision2D collision)
-    {
-        /* var hit = collision.gameObject;
-        hit.GetComponent<Rigidbody2D>().isKinematic = false;
-        */
-    }
 }

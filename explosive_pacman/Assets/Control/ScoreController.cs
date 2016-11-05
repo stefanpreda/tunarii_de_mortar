@@ -54,6 +54,11 @@ public class ScoreController : NetworkBehaviour {
         return status;
     }
 
+    public void setStatus(int status)
+    {
+        this.status = status;
+    }
+
     public int getCurrentScore()
     {
         return current_score;
