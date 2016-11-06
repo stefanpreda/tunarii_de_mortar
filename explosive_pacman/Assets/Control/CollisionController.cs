@@ -28,6 +28,10 @@ public class CollisionController : MonoBehaviour
             {
                 score_controller_self.modifyScore(0);
                 score_controller_target.modifyScore(1);
+
+                //Display score changes for each character
+                score_controller_self.displayScore();
+                score_controller_target.displayScore();
             }
         }
 
@@ -37,6 +41,10 @@ public class CollisionController : MonoBehaviour
             {
                 score_controller_self.modifyScore(1);
                 score_controller_target.modifyScore(0);
+
+                //Display score changes for each character
+                score_controller_self.displayScore();
+                score_controller_target.displayScore();
             }
         }
 

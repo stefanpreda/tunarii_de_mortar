@@ -6,6 +6,8 @@ using UnityEngine.Networking;
 public class MyNetworkManager : NetworkManager {
 
     List<NetworkConnection> players = new List<NetworkConnection>();
+    List<int> scores = new List<int>();
+
     int once = 0;
     public float startup_time = 3.0f;
     public float switch_time = 10.0f;
@@ -52,5 +54,13 @@ public class MyNetworkManager : NetworkManager {
             }
         }
 
+    }
+
+    public List<int> getScores()
+    {
+        scores.Clear();
+        for (int i = 0; i < players.Count; i++)
+            scores.Add(players[i].playerControllers[0].gameObject.GetComponent<ScoreController>().getCurrentScore());
+        return scores;
     }
 }
