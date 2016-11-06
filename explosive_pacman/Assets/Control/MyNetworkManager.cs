@@ -16,6 +16,7 @@ public class MyNetworkManager : NetworkManager {
     public void OnServerConnect(NetworkConnection conn)
     {
         players.Add(conn);
+        GameObject.FindGameObjectWithTag("RandomStart").GetComponent<RandomStartPosition>().generate_random();
         if (once == 0)
         {
             InvokeRepeating("SwitchRole", startup_time, switch_time);
@@ -37,6 +38,12 @@ public class MyNetworkManager : NetworkManager {
     {
         if (players.Count == 1)
         {
+            if (players[0] == null)
+            {
+                players.RemoveAt(0);
+                return;
+            }
+
             players[0].playerControllers[0].gameObject.GetComponent<ScoreController>().setStatus(1);
             return;
         }
@@ -44,13 +51,20 @@ public class MyNetworkManager : NetworkManager {
         {
             int index = Random.Range(0, players.Count);
             var obj = players[index].playerControllers[0].gameObject;
-            if (obj.GetComponent<ScoreController>().getStatus() == 0)
+
+            if (obj!= null && obj.GetComponent<ScoreController>().getStatus() == 0)
             {
                 for (int i = 0; i < players.Count; i++)
                     players[i].playerControllers[0].gameObject.GetComponent<ScoreController>().setStatus(0);
                 obj.GetComponent<ScoreController>().setStatus(1);
                 Debug.Log("Attacker index= " + index);
                 break;
+            }
+            else if (obj == null)
+            {
+                players.RemoveAt(index);
+                if (players.Count <= 1)
+                    break;
             }
         }
 

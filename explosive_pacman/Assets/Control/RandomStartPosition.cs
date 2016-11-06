@@ -1,8 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.Networking;
 
-// WORK IN PROGRESS, this might be removed
-public class PlayerRandomSpawner : NetworkBehaviour {
+public class RandomStartPosition : NetworkStartPosition {
 
     public float min_x = -4;
     public float max_x = 4;
@@ -10,15 +9,13 @@ public class PlayerRandomSpawner : NetworkBehaviour {
     public float max_y = 4;
     public float check_radius = 0.5f; //same on x and y because it's a circle
 
-
-    [ClientRpc]
-    public void RpcRespawn()
-    {
-        if (!isLocalPlayer)
-        {
-            return;
-        }
-   
+     // Use this for initialization
+    void Start () {
+	
+	}
+	
+	// Update is called once per frame
+	public void generate_random() {
         bool spawned = false;
 
         while (!spawned)
@@ -33,7 +30,5 @@ public class PlayerRandomSpawner : NetworkBehaviour {
                 spawned = true;
             }
         }
-
-
-    }
+	}
 }

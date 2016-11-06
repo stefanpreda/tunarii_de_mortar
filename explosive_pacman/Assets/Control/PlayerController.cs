@@ -16,7 +16,6 @@ public class PlayerController : NetworkBehaviour
     {
         anim = GetComponent<Animator>();
         body = GetComponent<Rigidbody2D>();
-
     }
 
     void Update()

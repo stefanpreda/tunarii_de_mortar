@@ -37,6 +37,12 @@ public class ScoreController : NetworkBehaviour {
                     current_score = 0;
                     Debug.Log("Player " + netId + " LOST");
                 }
+                else
+                {
+                    // called on the Server, invoked on the Clients
+                    gameObject.GetComponent<PlayerRandomSpawner>().RpcRespawn();
+                        
+                }
                 //print("Player " + netId + " score = " + current_score);  
                 StartCoroutine(JustHurt());
             }
@@ -60,7 +66,6 @@ public class ScoreController : NetworkBehaviour {
         yield return new WaitForSeconds(invulTime);
         invulnerable = false;
     }
-
 
     /*TODO: Score must be requested regularly from the server to be accurate(maybe use void update())
     * Also do something better than printing output in console
