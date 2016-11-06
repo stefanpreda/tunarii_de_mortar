@@ -24,14 +24,20 @@ public class CollisionController : MonoBehaviour
         //Adjust the score accordingly
         if (score_controller_self.getStatus() == 0 && score_controller_target.getStatus() == 1)
         {
-            score_controller_self.modifyScore(0);
-            score_controller_target.modifyScore(1);
+            if (!score_controller_self.getInvulnerable())
+            {
+                score_controller_self.modifyScore(0);
+                score_controller_target.modifyScore(1);
+            }
         }
 
         if (score_controller_self.getStatus() == 1 && score_controller_target.getStatus() == 0)
         {
-            score_controller_self.modifyScore(1);
-            score_controller_target.modifyScore(0);
+            if (!score_controller_target.getInvulnerable())
+            {
+                score_controller_self.modifyScore(1);
+                score_controller_target.modifyScore(0);
+            }
         }
 
     }
