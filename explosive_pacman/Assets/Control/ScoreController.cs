@@ -68,17 +68,17 @@ public class ScoreController : NetworkBehaviour {
     }
 
     /*TODO: Score must be requested regularly from the server to be accurate(maybe use void update())
-    * Also do something better than printing output in console
+     * Also get a reference to LobbyManager somewhat like this
     */
-    public void displayScore()
+    /*public void displayScore()
     {
-        var scores = GameObject.FindGameObjectWithTag("Server").GetComponent<MyNetworkManager>().getScores();
+        var scores = GameObject.FindGameObjectWithTag("Server").GetComponent<LobbyManager>().getScores();
         string scores_string = "";
         for (int i = 0; i < scores.Count; i++)
             scores_string = scores_string + scores[i] + " ";
 
         print("Player " + netId + " " + scores_string);
-    }
+    }*/
 
     public int getStatus()
     {
