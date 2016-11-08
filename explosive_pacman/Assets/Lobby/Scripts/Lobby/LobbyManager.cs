@@ -396,9 +396,21 @@ namespace Prototype.NetworkLobby
 
         // ----------------- Client callbacks ------------------
 
-        public override void OnClientConnect(NetworkConnection conn)
+        public override void OnServerConnect(NetworkConnection conn)
         {
             players.Add(conn);
+            print("CONNECTED");
+            base.OnServerConnect(conn);
+        }
+
+        public override void OnServerDisconnect(NetworkConnection conn)
+        {
+            players.Remove(conn);
+            print("DISCONNECTED");
+            base.OnServerDisconnect(conn);
+        }
+        public override void OnClientConnect(NetworkConnection conn)
+        {
 
             base.OnClientConnect(conn);
 
@@ -417,7 +429,6 @@ namespace Prototype.NetworkLobby
 
         public override void OnClientDisconnect(NetworkConnection conn)
         {
-            players.Remove(conn);
             base.OnClientDisconnect(conn);
             ChangeTo(mainMenuPanel);
         }

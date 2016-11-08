@@ -16,6 +16,12 @@ public class PlayerController : NetworkBehaviour
     {
         anim = GetComponent<Animator>();
         body = GetComponent<Rigidbody2D>();
+
+        if (isLocalPlayer)
+        {
+            gameObject.GetComponent<PlayerRandomSpawner>().CmdRespawn();
+        }
+
     }
 
     void Update()

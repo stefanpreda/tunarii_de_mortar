@@ -10,6 +10,11 @@ public class PlayerRandomSpawner : NetworkBehaviour {
     public float max_y = 4;
     public float check_radius = 0.5f; //same on x and y because it's a circle
 
+    [Command]
+    public void CmdRespawn()
+    {
+        RpcRespawn();
+    }
 
     [ClientRpc]
     public void RpcRespawn()
