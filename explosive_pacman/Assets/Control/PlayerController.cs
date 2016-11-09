@@ -10,6 +10,8 @@ public class PlayerController : NetworkBehaviour
 
     public float speed = 5.0f;
 
+    [SyncVar]
+    public Color player_color = Color.white; 
 
     //Initialization function
     void Start()
@@ -21,7 +23,8 @@ public class PlayerController : NetworkBehaviour
         {
             gameObject.GetComponent<PlayerRandomSpawner>().CmdRespawn();
         }
-
+        print(player_color);
+        gameObject.GetComponent<SpriteRenderer>().material.color = player_color;
     }
 
     void Update()

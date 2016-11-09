@@ -12,6 +12,7 @@ namespace Prototype.NetworkLobby
     public class LobbyManager : NetworkLobbyManager 
     {
         List<NetworkConnection> players = new List<NetworkConnection>();
+        List<Color> colors = new List<Color>();
         List<int> scores = new List<int>();
 
         public float startup_time = 3.0f;
@@ -282,10 +283,9 @@ namespace Prototype.NetworkLobby
         public override GameObject OnLobbyServerCreateLobbyPlayer(NetworkConnection conn, short playerControllerId)
         {
             GameObject obj = Instantiate(lobbyPlayerPrefab.gameObject) as GameObject;
-
+            
             LobbyPlayer newPlayer = obj.GetComponent<LobbyPlayer>();
             newPlayer.ToggleJoinButton(numPlayers + 1 >= minPlayers);
-
 
             for (int i = 0; i < lobbySlots.Length; ++i)
             {
@@ -298,6 +298,8 @@ namespace Prototype.NetworkLobby
                 }
             }
 
+            colors.Add(newPlayer.playerColor);
+      
             return obj;
         }
 
@@ -311,6 +313,7 @@ namespace Prototype.NetworkLobby
                 {
                     p.RpcUpdateRemoveButton();
                     p.ToggleJoinButton(numPlayers + 1 >= minPlayers);
+                    colors.Remove(p.playerColor);
                 }
             }
         }
@@ -325,6 +328,7 @@ namespace Prototype.NetworkLobby
                 {
                     p.RpcUpdateRemoveButton();
                     p.ToggleJoinButton(numPlayers >= minPlayers);
+                    colors.Remove(p.playerColor);
                 }
             }
 
@@ -334,6 +338,9 @@ namespace Prototype.NetworkLobby
         {
             //This hook allows you to apply state data from the lobby-player to the game-player
             //just subclass "LobbyHook" and add it to the lobby object.
+            LobbyPlayer lobby_player = lobbyPlayer.GetComponent<LobbyPlayer>();
+
+            gamePlayer.GetComponent<PlayerController>().player_color = lobby_player.playerColor;
 
             if (_lobbyHooks)
                 _lobbyHooks.OnLobbyServerSceneLoadedForPlayer(this, lobbyPlayer, gamePlayer);
