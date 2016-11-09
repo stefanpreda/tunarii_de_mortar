@@ -460,7 +460,11 @@ namespace Prototype.NetworkLobby
                 if (obj != null && obj.GetComponent<ScoreController>().getStatus() == 0)
                 {
                     for (int i = 0; i < players.Count; i++)
-                        players[i].playerControllers[0].gameObject.GetComponent<ScoreController>().setStatus(0);
+                    {
+                        if (players[i].playerControllers[0].gameObject != null)
+                            players[i].playerControllers[0].gameObject.GetComponent<ScoreController>().setStatus(0);
+                    }
+
                     obj.GetComponent<ScoreController>().setStatus(1);
                     Debug.Log("Attacker index= " + index);
                     break;
@@ -481,6 +485,20 @@ namespace Prototype.NetworkLobby
             for (int i = 0; i < players.Count; i++)
                 scores.Add(players[i].playerControllers[0].gameObject.GetComponent<ScoreController>().getCurrentScore());
             return scores;
+        }
+
+
+        public void removePlayer(GameObject obj)
+        {
+            int n = players.Count;
+            for (int i = 0; i < n; i++)
+                if (players[i].playerControllers[0].gameObject == null
+                    || players[i].playerControllers[0].gameObject.Equals(obj))
+                {
+                    players.RemoveAt(i);
+                    break;
+                }
+
         }
     }
 

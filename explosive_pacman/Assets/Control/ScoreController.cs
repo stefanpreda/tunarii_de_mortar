@@ -6,8 +6,8 @@ using UnityEngine.Networking;
 //Attach this to Character only
 public class ScoreController : NetworkBehaviour {
 
-    public int start_score = 50;
-    public int win_score = 100;
+    public int start_score = 10;
+    public int win_score = 20;
     public int score_delta = 5;
     public int invulTime = 3;
 
@@ -36,6 +36,8 @@ public class ScoreController : NetworkBehaviour {
                 {
                     current_score = 0;
                     Debug.Log("Player " + netId + " LOST");
+                    GameObject.FindGameObjectWithTag("Server").GetComponent<Prototype.NetworkLobby.LobbyManager>().removePlayer(gameObject);
+                    Cmd_DestroyThis(netId);
                 }
                 else
                 {
@@ -68,7 +70,6 @@ public class ScoreController : NetworkBehaviour {
     }
 
     /*TODO: Score must be requested regularly from the server to be accurate(maybe use void update())
-     * Also get a reference to LobbyManager somewhat like this
     */
     public void displayScore()
     {
@@ -79,6 +80,13 @@ public class ScoreController : NetworkBehaviour {
             scores_string = scores_string + scores[i] + " ";
 
         print("Player " + netId + " " + scores_string);
+    }
+
+    [Command]
+    void Cmd_DestroyThis(NetworkInstanceId netID)
+    {
+        GameObject theObject = NetworkServer.FindLocalObject(netID);
+        NetworkServer.Destroy(theObject);
     }
 
     public int getStatus()

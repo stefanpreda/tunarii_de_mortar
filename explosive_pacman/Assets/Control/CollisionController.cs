@@ -2,7 +2,6 @@
 
 //This class should be responsible for actions taken in case of collision
 //Attach this to Character only
-//TODO: This is called a lot of times, a timeout after taking dmg is needed
 public class CollisionController : MonoBehaviour
 {
     void OnCollisionEnter2D(Collision2D collision)
@@ -26,7 +25,8 @@ public class CollisionController : MonoBehaviour
         {
             if (!score_controller_self.getInvulnerable())
             {
-                score_controller_self.modifyScore(0);
+                if (score_controller_self != null)
+                    score_controller_self.modifyScore(0);
                 score_controller_target.modifyScore(1);
                 score_controller_self.displayScore();
             }
@@ -37,6 +37,8 @@ public class CollisionController : MonoBehaviour
             if (!score_controller_target.getInvulnerable())
             {
                 score_controller_self.modifyScore(1);
+
+                if (score_controller_target != null)
                 score_controller_target.modifyScore(0);
                 score_controller_self.displayScore();
 
