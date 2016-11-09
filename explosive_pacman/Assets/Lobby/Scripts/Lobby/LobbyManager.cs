@@ -462,10 +462,15 @@ namespace Prototype.NetworkLobby
                     for (int i = 0; i < players.Count; i++)
                     {
                         if (players[i].playerControllers[0].gameObject != null)
+                        {
                             players[i].playerControllers[0].gameObject.GetComponent<ScoreController>().setStatus(0);
+                            players[i].playerControllers[0].gameObject.GetComponent<RoleTransfom>().RpcSetRunner();
+                        }
+
                     }
 
                     obj.GetComponent<ScoreController>().setStatus(1);
+                    obj.GetComponent<RoleTransfom>().RpcSetAttacker();
                     Debug.Log("Attacker index= " + index);
                     break;
                 }
@@ -500,6 +505,7 @@ namespace Prototype.NetworkLobby
                 }
 
         }
+
     }
 
 

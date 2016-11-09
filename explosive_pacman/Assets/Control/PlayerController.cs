@@ -8,7 +8,7 @@ public class PlayerController : NetworkBehaviour
     private Animator anim;
     private Rigidbody2D body;
 
-    public float speed = 11.0f;
+    public float speed = 5.0f;
 
 
     //Initialization function
@@ -65,5 +65,10 @@ public class PlayerController : NetworkBehaviour
             anim.SetBool("down", true);
             body.velocity = new Vector2(0, -speed);
         }
+    }
+
+    public void setSpeed(float speed)
+    {
+        this.speed = speed;
     }
 }
