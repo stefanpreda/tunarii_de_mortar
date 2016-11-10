@@ -27,8 +27,11 @@ public class CollisionController : MonoBehaviour
             {
                 if (score_controller_self != null)
                     score_controller_self.modifyScore(0);
-                score_controller_target.modifyScore(1);
-                score_controller_self.displayScore();
+                if (score_controller_target != null)
+                    score_controller_target.modifyScore(1);
+
+                if (score_controller_self != null)
+                    score_controller_self.displayScore();
             }
         }
 
@@ -36,11 +39,13 @@ public class CollisionController : MonoBehaviour
         {
             if (!score_controller_target.getInvulnerable())
             {
-                score_controller_self.modifyScore(1);
-
+                if (score_controller_self != null)
+                    score_controller_self.modifyScore(1);
                 if (score_controller_target != null)
-                score_controller_target.modifyScore(0);
-                score_controller_self.displayScore();
+                    score_controller_target.modifyScore(0);
+
+                if (score_controller_self != null)
+                    score_controller_self.displayScore();
 
             }
         }
