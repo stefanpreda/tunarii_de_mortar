@@ -23,7 +23,7 @@ public class PlayerController : NetworkBehaviour
         {
             gameObject.GetComponent<PlayerRandomSpawner>().CmdRespawn();
         }
-        print(player_color);
+
         gameObject.GetComponent<SpriteRenderer>().material.color = player_color;
     }
 

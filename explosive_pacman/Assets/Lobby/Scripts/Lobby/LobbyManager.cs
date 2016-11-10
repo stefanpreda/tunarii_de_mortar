@@ -18,6 +18,8 @@ namespace Prototype.NetworkLobby
         public float startup_time = 3.0f;
         public float switch_time = 10.0f;
 
+        private bool gameStarted = false;
+
         static short MsgKicked = MsgType.Highest + 1;
 
         static public LobbyManager s_Singleton;
@@ -398,6 +400,7 @@ namespace Prototype.NetworkLobby
             }
 
             ServerChangeScene(playScene);
+            gameStarted = true;
             InvokeRepeating("SwitchRole", startup_time, switch_time);
         }
 
@@ -414,6 +417,15 @@ namespace Prototype.NetworkLobby
         {
             players.Remove(conn);
             print("DISCONNECTED");
+            if (players.Count == 1 && gameStarted)
+                initiateWinner();
+
+            if (players.Count == 0 && gameStarted)
+            {
+                CancelInvoke();
+                print("CANCELED ROLE SWITCH");
+                gameStarted = false;
+            }
             base.OnServerDisconnect(conn);
         }
         public override void OnClientConnect(NetworkConnection conn)
@@ -508,9 +520,17 @@ namespace Prototype.NetworkLobby
                     || players[i].playerControllers[0].gameObject.Equals(obj))
                 {
                     players.RemoveAt(i);
+                    if (players.Count == 1)
+                        initiateWinner();
                     break;
                 }
 
+        }
+
+        public void initiateWinner()
+        {
+            if (players.Count == 1)
+                players[0].playerControllers[0].gameObject.GetComponent<ScoreController>().winGame();
         }
 
     }
