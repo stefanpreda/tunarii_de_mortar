@@ -12,11 +12,15 @@ namespace Prototype.NetworkLobby
     public class LobbyManager : NetworkLobbyManager 
     {
         List<NetworkConnection> players = new List<NetworkConnection>();
-        List<Color> colors = new List<Color>();
         List<int> scores = new List<int>();
 
-        public float startup_time = 3.0f;
+        public float startup_time = 5.0f;
         public float switch_time = 10.0f;
+
+        public bool blockPlayers = true;
+        public float block_time = 3.0f;
+
+        public float max_game_time = 300;
 
         private bool gameStarted = false;
 
@@ -61,6 +65,8 @@ namespace Prototype.NetworkLobby
         protected ulong _currentMatchID;
 
         protected LobbyHook _lobbyHooks;
+
+        private GameObject last_attacker = null;
 
         void Start()
         {
@@ -299,8 +305,6 @@ namespace Prototype.NetworkLobby
                     p.ToggleJoinButton(numPlayers + 1 >= minPlayers);
                 }
             }
-
-            colors.Add(newPlayer.playerColor);
       
             return obj;
         }
@@ -315,7 +319,6 @@ namespace Prototype.NetworkLobby
                 {
                     p.RpcUpdateRemoveButton();
                     p.ToggleJoinButton(numPlayers + 1 >= minPlayers);
-                    colors.Remove(p.playerColor);
                 }
             }
         }
@@ -330,7 +333,6 @@ namespace Prototype.NetworkLobby
                 {
                     p.RpcUpdateRemoveButton();
                     p.ToggleJoinButton(numPlayers >= minPlayers);
-                    colors.Remove(p.playerColor);
                 }
             }
 
@@ -401,6 +403,8 @@ namespace Prototype.NetworkLobby
 
             ServerChangeScene(playScene);
             gameStarted = true;
+            StartCoroutine(StartGameTime(max_game_time));
+            StartCoroutine(UnblockAfterDelay(block_time));
             InvokeRepeating("SwitchRole", startup_time, switch_time);
         }
 
@@ -443,6 +447,7 @@ namespace Prototype.NetworkLobby
                 backDelegate = StopClientClbk;
                 SetServerInfo("Client", networkAddress);
             }
+
         }
 
 
@@ -450,6 +455,7 @@ namespace Prototype.NetworkLobby
         {
             base.OnClientDisconnect(conn);
             ChangeTo(mainMenuPanel);
+
         }
 
         public override void OnClientError(NetworkConnection conn, int errorCode)
@@ -469,38 +475,61 @@ namespace Prototype.NetworkLobby
                 }
 
                 players[0].playerControllers[0].gameObject.GetComponent<ScoreController>().setStatus(1);
+                players[0].playerControllers[0].gameObject.GetComponent<RoleTransfom>().RpcSetAttacker();
                 return;
             }
-            while (true)
+            if (last_attacker == null)
             {
-                int index = Random.Range(0, players.Count);
-                var obj = players[index].playerControllers[0].gameObject;
-
-                if (obj != null && obj.GetComponent<ScoreController>().getStatus() == 0)
+                while (true)
                 {
-                    for (int i = 0; i < players.Count; i++)
+                    int index = Random.Range(0, players.Count);
+                    var obj = players[index].playerControllers[0].gameObject;
+
+                    if (obj != null)
                     {
-                        if (players[i].playerControllers[0].gameObject != null)
-                        {
-                            players[i].playerControllers[0].gameObject.GetComponent<ScoreController>().setStatus(0);
-                            players[i].playerControllers[0].gameObject.GetComponent<RoleTransfom>().RpcSetRunner();
-                        }
-
-                    }
-
-                    obj.GetComponent<ScoreController>().setStatus(1);
-                    obj.GetComponent<RoleTransfom>().RpcSetAttacker();
-                    Debug.Log("Attacker index= " + index);
-                    break;
-                }
-                else if (obj == null)
-                {
-                    players.RemoveAt(index);
-                    if (players.Count <= 1)
+                        obj.GetComponent<ScoreController>().setStatus(1);
+                        obj.GetComponent<RoleTransfom>().RpcSetAttacker();
+                        Debug.Log("Attacker index= " + index);
+                        last_attacker = obj;
                         break;
+                    }
+                    else if (obj == null)
+                    {
+                        players.RemoveAt(index);
+                        if (players.Count <= 1)
+                            break;
+                    }
                 }
             }
+            else
+            {
+                last_attacker.GetComponent<ScoreController>().setStatus(0);
+                last_attacker.GetComponent<RoleTransfom>().RpcSetRunner();
 
+                float min_distance = Mathf.Infinity;
+                GameObject new_attacker = null;
+                int index = -1;
+
+                for (int i = 0; i < players.Count; i++)
+                {
+                    if (players[i].playerControllers[0] != null && players[i].playerControllers[0].gameObject != null
+                        && !players[i].playerControllers[0].gameObject.Equals(last_attacker))
+                    {
+                        var dist =  Mathf.Abs(Vector3.Distance(last_attacker.transform.position, 
+                            players[i].playerControllers[0].gameObject.transform.position));
+                        if (dist < min_distance)
+                        {
+                            min_distance = dist;
+                            new_attacker = players[i].playerControllers[0].gameObject;
+                            index = i;
+                        }
+                    }
+                }
+                new_attacker.GetComponent<ScoreController>().setStatus(1);
+                new_attacker.GetComponent<RoleTransfom>().RpcSetAttacker();
+                last_attacker = new_attacker;
+                Debug.Log("Attacker index= " + index);
+            }
         }
 
         public List<int> getScores()
@@ -533,6 +562,36 @@ namespace Prototype.NetworkLobby
                 players[0].playerControllers[0].gameObject.GetComponent<ScoreController>().winGame();
         }
 
+        IEnumerator UnblockAfterDelay(float time)
+        {
+            yield return new WaitForSeconds(time);
+            if (blockPlayers)
+            {
+                for (int i = 0; i < players.Count; i++)
+                    if (players[i].playerControllers[0] != null && players[i].playerControllers[0].gameObject != null)
+                        players[i].playerControllers[0].gameObject.GetComponent<PlayerController>().setBlock(false);
+                blockPlayers = false;
+            }
+        }
+
+        IEnumerator StartGameTime(float time)
+        {
+            yield return new WaitForSeconds(time);
+            int max_score = 0;
+            NetworkConnection winner = null;
+            for (int i = 0; i < players.Count; i++)
+                if (players[i].playerControllers[0] != null && players[i].playerControllers[0].gameObject != null)
+                    if (players[i].playerControllers[0].gameObject.GetComponent<ScoreController>().getCurrentScore() > max_score)
+                    {
+                        max_score = players[i].playerControllers[0].gameObject.GetComponent<ScoreController>().getCurrentScore();
+                        winner = players[i];
+                    }
+            if (winner != null)
+            {
+                var id = winner.playerControllers[0].gameObject.GetComponent<ScoreController>().netId;
+                winner.playerControllers[0].gameObject.GetComponent<ScoreController>().Cmd_DestroyAllExceptOne(id);
+            }
+        }
     }
 
 
