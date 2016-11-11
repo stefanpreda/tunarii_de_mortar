@@ -35,6 +35,9 @@ public class PlayerController : NetworkBehaviour
             return;
         }
 
+        if (GameObject.FindGameObjectWithTag("Server").GetComponent<Prototype.NetworkLobby.LobbyManager>().blockPlayers == true)
+            return;
+
         //When moving animation is set accordingly
         if (Input.GetKey(KeyCode.A) || Input.GetKey("left"))
         {

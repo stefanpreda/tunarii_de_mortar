@@ -15,8 +15,11 @@ namespace Prototype.NetworkLobby
         List<Color> colors = new List<Color>();
         List<int> scores = new List<int>();
 
-        public float startup_time = 3.0f;
+        public float startup_time = 5.0f;
         public float switch_time = 10.0f;
+
+        public bool blockPlayers = true;
+        public float block_time = 3.0f;
 
         private bool gameStarted = false;
 
@@ -401,6 +404,7 @@ namespace Prototype.NetworkLobby
 
             ServerChangeScene(playScene);
             gameStarted = true;
+            StartCoroutine(UnblockAfterDelay(block_time));
             InvokeRepeating("SwitchRole", startup_time, switch_time);
         }
 
@@ -533,6 +537,11 @@ namespace Prototype.NetworkLobby
                 players[0].playerControllers[0].gameObject.GetComponent<ScoreController>().winGame();
         }
 
+        IEnumerator UnblockAfterDelay(float time)
+        {
+            yield return new WaitForSeconds(time);
+            blockPlayers = false;
+        }
     }
 
 
