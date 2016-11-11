@@ -12,7 +12,6 @@ namespace Prototype.NetworkLobby
     public class LobbyManager : NetworkLobbyManager 
     {
         List<NetworkConnection> players = new List<NetworkConnection>();
-        List<Color> colors = new List<Color>();
         List<int> scores = new List<int>();
 
         public float startup_time = 5.0f;
@@ -20,6 +19,8 @@ namespace Prototype.NetworkLobby
 
         public bool blockPlayers = true;
         public float block_time = 3.0f;
+
+        public float max_game_time = 300;
 
         private bool gameStarted = false;
 
@@ -302,8 +303,6 @@ namespace Prototype.NetworkLobby
                     p.ToggleJoinButton(numPlayers + 1 >= minPlayers);
                 }
             }
-
-            colors.Add(newPlayer.playerColor);
       
             return obj;
         }
@@ -318,7 +317,6 @@ namespace Prototype.NetworkLobby
                 {
                     p.RpcUpdateRemoveButton();
                     p.ToggleJoinButton(numPlayers + 1 >= minPlayers);
-                    colors.Remove(p.playerColor);
                 }
             }
         }
@@ -333,7 +331,6 @@ namespace Prototype.NetworkLobby
                 {
                     p.RpcUpdateRemoveButton();
                     p.ToggleJoinButton(numPlayers >= minPlayers);
-                    colors.Remove(p.playerColor);
                 }
             }
 
@@ -404,6 +401,7 @@ namespace Prototype.NetworkLobby
 
             ServerChangeScene(playScene);
             gameStarted = true;
+            StartCoroutine(StartGameTime(max_game_time));
             StartCoroutine(UnblockAfterDelay(block_time));
             InvokeRepeating("SwitchRole", startup_time, switch_time);
         }
@@ -447,6 +445,7 @@ namespace Prototype.NetworkLobby
                 backDelegate = StopClientClbk;
                 SetServerInfo("Client", networkAddress);
             }
+
         }
 
 
@@ -454,6 +453,7 @@ namespace Prototype.NetworkLobby
         {
             base.OnClientDisconnect(conn);
             ChangeTo(mainMenuPanel);
+
         }
 
         public override void OnClientError(NetworkConnection conn, int errorCode)
@@ -484,7 +484,7 @@ namespace Prototype.NetworkLobby
                 {
                     for (int i = 0; i < players.Count; i++)
                     {
-                        if (players[i].playerControllers[0].gameObject != null)
+                        if (players[i].playerControllers[0] != null  && players[i].playerControllers[0].gameObject != null)
                         {
                             players[i].playerControllers[0].gameObject.GetComponent<ScoreController>().setStatus(0);
                             players[i].playerControllers[0].gameObject.GetComponent<RoleTransfom>().RpcSetRunner();
@@ -540,7 +540,32 @@ namespace Prototype.NetworkLobby
         IEnumerator UnblockAfterDelay(float time)
         {
             yield return new WaitForSeconds(time);
-            blockPlayers = false;
+            if (blockPlayers)
+            {
+                for (int i = 0; i < players.Count; i++)
+                    if (players[i].playerControllers[0] != null && players[i].playerControllers[0].gameObject != null)
+                        players[i].playerControllers[0].gameObject.GetComponent<PlayerController>().setBlock(false);
+                blockPlayers = false;
+            }
+        }
+
+        IEnumerator StartGameTime(float time)
+        {
+            yield return new WaitForSeconds(time);
+            int max_score = 0;
+            NetworkConnection winner = null;
+            for (int i = 0; i < players.Count; i++)
+                if (players[i].playerControllers[0] != null && players[i].playerControllers[0].gameObject != null)
+                    if (players[i].playerControllers[0].gameObject.GetComponent<ScoreController>().getCurrentScore() > max_score)
+                    {
+                        max_score = players[i].playerControllers[0].gameObject.GetComponent<ScoreController>().getCurrentScore();
+                        winner = players[i];
+                    }
+            if (winner != null)
+            {
+                var id = winner.playerControllers[0].gameObject.GetComponent<ScoreController>().netId;
+                winner.playerControllers[0].gameObject.GetComponent<ScoreController>().Cmd_DestroyAllExceptOne(id);
+            }
         }
     }
 

@@ -11,7 +11,10 @@ public class PlayerController : NetworkBehaviour
     public float speed = 5.0f;
 
     [SyncVar]
-    public Color player_color = Color.white; 
+    public Color player_color = Color.white;
+
+    [SyncVar]
+    bool blockPlayers = true;
 
     //Initialization function
     void Start()
@@ -35,7 +38,7 @@ public class PlayerController : NetworkBehaviour
             return;
         }
 
-        if (GameObject.FindGameObjectWithTag("Server").GetComponent<Prototype.NetworkLobby.LobbyManager>().blockPlayers == true)
+        if (blockPlayers)
             return;
 
         //When moving animation is set accordingly
@@ -73,8 +76,14 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
+    public void setBlock(bool b)
+    {
+       blockPlayers = b;
+    }
+
     public void setSpeed(float speed)
     {
         this.speed = speed;
     }
+
 }

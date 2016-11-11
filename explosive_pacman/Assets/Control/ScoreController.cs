@@ -102,7 +102,7 @@ public class ScoreController : NetworkBehaviour {
     }
 
     [Command]
-    void Cmd_DestroyAllExceptOne(NetworkInstanceId netID)
+    public void Cmd_DestroyAllExceptOne(NetworkInstanceId netID)
     {
         Dictionary<NetworkInstanceId, NetworkIdentity> map = new Dictionary<NetworkInstanceId, NetworkIdentity>();
 
