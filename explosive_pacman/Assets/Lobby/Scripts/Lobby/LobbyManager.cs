@@ -66,6 +66,8 @@ namespace Prototype.NetworkLobby
 
         protected LobbyHook _lobbyHooks;
 
+        private GameObject last_attacker = null;
+
         void Start()
         {
             s_Singleton = this;
@@ -473,38 +475,61 @@ namespace Prototype.NetworkLobby
                 }
 
                 players[0].playerControllers[0].gameObject.GetComponent<ScoreController>().setStatus(1);
+                players[0].playerControllers[0].gameObject.GetComponent<RoleTransfom>().RpcSetAttacker();
                 return;
             }
-            while (true)
+            if (last_attacker == null)
             {
-                int index = Random.Range(0, players.Count);
-                var obj = players[index].playerControllers[0].gameObject;
-
-                if (obj != null && obj.GetComponent<ScoreController>().getStatus() == 0)
+                while (true)
                 {
-                    for (int i = 0; i < players.Count; i++)
+                    int index = Random.Range(0, players.Count);
+                    var obj = players[index].playerControllers[0].gameObject;
+
+                    if (obj != null)
                     {
-                        if (players[i].playerControllers[0] != null  && players[i].playerControllers[0].gameObject != null)
-                        {
-                            players[i].playerControllers[0].gameObject.GetComponent<ScoreController>().setStatus(0);
-                            players[i].playerControllers[0].gameObject.GetComponent<RoleTransfom>().RpcSetRunner();
-                        }
-
-                    }
-
-                    obj.GetComponent<ScoreController>().setStatus(1);
-                    obj.GetComponent<RoleTransfom>().RpcSetAttacker();
-                    Debug.Log("Attacker index= " + index);
-                    break;
-                }
-                else if (obj == null)
-                {
-                    players.RemoveAt(index);
-                    if (players.Count <= 1)
+                        obj.GetComponent<ScoreController>().setStatus(1);
+                        obj.GetComponent<RoleTransfom>().RpcSetAttacker();
+                        Debug.Log("Attacker index= " + index);
+                        last_attacker = obj;
                         break;
+                    }
+                    else if (obj == null)
+                    {
+                        players.RemoveAt(index);
+                        if (players.Count <= 1)
+                            break;
+                    }
                 }
             }
+            else
+            {
+                last_attacker.GetComponent<ScoreController>().setStatus(0);
+                last_attacker.GetComponent<RoleTransfom>().RpcSetRunner();
 
+                float min_distance = Mathf.Infinity;
+                GameObject new_attacker = null;
+                int index = -1;
+
+                for (int i = 0; i < players.Count; i++)
+                {
+                    if (players[i].playerControllers[0] != null && players[i].playerControllers[0].gameObject != null
+                        && !players[i].playerControllers[0].gameObject.Equals(last_attacker))
+                    {
+                        var dist =  Mathf.Abs(Vector3.Distance(last_attacker.transform.position, 
+                            players[i].playerControllers[0].gameObject.transform.position));
+                        if (dist < min_distance)
+                        {
+                            min_distance = dist;
+                            new_attacker = players[i].playerControllers[0].gameObject;
+                            index = i;
+                        }
+                    }
+                }
+                new_attacker.GetComponent<ScoreController>().setStatus(1);
+                new_attacker.GetComponent<RoleTransfom>().RpcSetAttacker();
+                last_attacker = new_attacker;
+                Debug.Log("Attacker index= " + index);
+            }
         }
 
         public List<int> getScores()
