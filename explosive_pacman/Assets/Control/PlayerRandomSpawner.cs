@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.Networking;
 
-// WORK IN PROGRESS, this might be removed
 public class PlayerRandomSpawner : NetworkBehaviour {
 
     public float min_x = -4;

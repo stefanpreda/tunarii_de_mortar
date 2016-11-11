@@ -12,10 +12,13 @@ namespace Prototype.NetworkLobby
     public class LobbyManager : NetworkLobbyManager 
     {
         List<NetworkConnection> players = new List<NetworkConnection>();
+        List<Color> colors = new List<Color>();
         List<int> scores = new List<int>();
 
         public float startup_time = 3.0f;
         public float switch_time = 10.0f;
+
+        private bool gameStarted = false;
 
         static short MsgKicked = MsgType.Highest + 1;
 
@@ -282,10 +285,9 @@ namespace Prototype.NetworkLobby
         public override GameObject OnLobbyServerCreateLobbyPlayer(NetworkConnection conn, short playerControllerId)
         {
             GameObject obj = Instantiate(lobbyPlayerPrefab.gameObject) as GameObject;
-
+            
             LobbyPlayer newPlayer = obj.GetComponent<LobbyPlayer>();
             newPlayer.ToggleJoinButton(numPlayers + 1 >= minPlayers);
-
 
             for (int i = 0; i < lobbySlots.Length; ++i)
             {
@@ -298,6 +300,8 @@ namespace Prototype.NetworkLobby
                 }
             }
 
+            colors.Add(newPlayer.playerColor);
+      
             return obj;
         }
 
@@ -311,6 +315,7 @@ namespace Prototype.NetworkLobby
                 {
                     p.RpcUpdateRemoveButton();
                     p.ToggleJoinButton(numPlayers + 1 >= minPlayers);
+                    colors.Remove(p.playerColor);
                 }
             }
         }
@@ -325,6 +330,7 @@ namespace Prototype.NetworkLobby
                 {
                     p.RpcUpdateRemoveButton();
                     p.ToggleJoinButton(numPlayers >= minPlayers);
+                    colors.Remove(p.playerColor);
                 }
             }
 
@@ -334,6 +340,9 @@ namespace Prototype.NetworkLobby
         {
             //This hook allows you to apply state data from the lobby-player to the game-player
             //just subclass "LobbyHook" and add it to the lobby object.
+            LobbyPlayer lobby_player = lobbyPlayer.GetComponent<LobbyPlayer>();
+
+            gamePlayer.GetComponent<PlayerController>().player_color = lobby_player.playerColor;
 
             if (_lobbyHooks)
                 _lobbyHooks.OnLobbyServerSceneLoadedForPlayer(this, lobbyPlayer, gamePlayer);
@@ -391,6 +400,7 @@ namespace Prototype.NetworkLobby
             }
 
             ServerChangeScene(playScene);
+            gameStarted = true;
             InvokeRepeating("SwitchRole", startup_time, switch_time);
         }
 
@@ -407,6 +417,15 @@ namespace Prototype.NetworkLobby
         {
             players.Remove(conn);
             print("DISCONNECTED");
+            if (players.Count == 1 && gameStarted)
+                initiateWinner();
+
+            if (players.Count == 0 && gameStarted)
+            {
+                CancelInvoke();
+                print("CANCELED ROLE SWITCH");
+                gameStarted = false;
+            }
             base.OnServerDisconnect(conn);
         }
         public override void OnClientConnect(NetworkConnection conn)
@@ -460,8 +479,17 @@ namespace Prototype.NetworkLobby
                 if (obj != null && obj.GetComponent<ScoreController>().getStatus() == 0)
                 {
                     for (int i = 0; i < players.Count; i++)
-                        players[i].playerControllers[0].gameObject.GetComponent<ScoreController>().setStatus(0);
+                    {
+                        if (players[i].playerControllers[0].gameObject != null)
+                        {
+                            players[i].playerControllers[0].gameObject.GetComponent<ScoreController>().setStatus(0);
+                            players[i].playerControllers[0].gameObject.GetComponent<RoleTransfom>().RpcSetRunner();
+                        }
+
+                    }
+
                     obj.GetComponent<ScoreController>().setStatus(1);
+                    obj.GetComponent<RoleTransfom>().RpcSetAttacker();
                     Debug.Log("Attacker index= " + index);
                     break;
                 }
@@ -482,6 +510,29 @@ namespace Prototype.NetworkLobby
                 scores.Add(players[i].playerControllers[0].gameObject.GetComponent<ScoreController>().getCurrentScore());
             return scores;
         }
+
+
+        public void removePlayer(GameObject obj)
+        {
+            int n = players.Count;
+            for (int i = 0; i < n; i++)
+                if (players[i].playerControllers[0].gameObject == null
+                    || players[i].playerControllers[0].gameObject.Equals(obj))
+                {
+                    players.RemoveAt(i);
+                    if (players.Count == 1)
+                        initiateWinner();
+                    break;
+                }
+
+        }
+
+        public void initiateWinner()
+        {
+            if (players.Count == 1)
+                players[0].playerControllers[0].gameObject.GetComponent<ScoreController>().winGame();
+        }
+
     }
 
 

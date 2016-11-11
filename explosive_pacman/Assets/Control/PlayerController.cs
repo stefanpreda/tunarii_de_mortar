@@ -1,5 +1,4 @@
-﻿using Prototype.NetworkLobby;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.Networking;
 
 //This class controls player movement and animations
@@ -9,13 +8,10 @@ public class PlayerController : NetworkBehaviour
     private Animator anim;
     private Rigidbody2D body;
 
-    public float speed = 11.0f;
-    
-    [SyncVar]
-    public string pname = "player";
+    public float speed = 5.0f;
 
     [SyncVar]
-    public Color playerColor = Color.white;
+    public Color player_color = Color.white; 
 
     //Initialization function
     void Start()
@@ -23,22 +19,16 @@ public class PlayerController : NetworkBehaviour
         anim = GetComponent<Animator>();
         body = GetComponent<Rigidbody2D>();
 
-        Renderer[] rends = GetComponentsInChildren<Renderer>();
-        foreach (Renderer r in rends)
-            r.material.color = playerColor;
-
         if (isLocalPlayer)
         {
             gameObject.GetComponent<PlayerRandomSpawner>().CmdRespawn();
         }
 
-        
-
+        gameObject.GetComponent<SpriteRenderer>().material.color = player_color;
     }
 
     void Update()
     {
-        
         //Not the current player or invalid animation
         if (!isLocalPlayer || anim == null)
         {
@@ -78,5 +68,10 @@ public class PlayerController : NetworkBehaviour
             anim.SetBool("down", true);
             body.velocity = new Vector2(0, -speed);
         }
+    }
+
+    public void setSpeed(float speed)
+    {
+        this.speed = speed;
     }
 }
