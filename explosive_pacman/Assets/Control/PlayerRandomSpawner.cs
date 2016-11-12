@@ -3,11 +3,30 @@ using UnityEngine.Networking;
 
 public class PlayerRandomSpawner : NetworkBehaviour {
 
-    public float min_x = -4;
-    public float max_x = 4;
-    public float min_y = -4;
-    public float max_y = 4;
+    public Vector2 get_world_dimensions()
+    {
+        var cam = Camera.main;
+        var p1 = cam.ViewportToWorldPoint(new Vector3(0, 0, cam.nearClipPlane));
+        var p2 = cam.ViewportToWorldPoint(new Vector3(1, 0, cam.nearClipPlane));
+        var p3 = cam.ViewportToWorldPoint(new Vector3(1, 1, cam.nearClipPlane));
+
+        float width = (p2 - p1).magnitude;
+        float height = (p3 - p2).magnitude;
+
+        Vector2 dimensions = new Vector2(width, height);
+
+        return dimensions;
+    }
+
+
+    public float min_x = -25;
+    public float max_x = 25;
+    public float min_y = -11;
+    public float max_y = 11;
     public float check_radius = 0.5f; //same on x and y because it's a circle
+
+    
+
 
     [Command]
     public void CmdRespawn()
