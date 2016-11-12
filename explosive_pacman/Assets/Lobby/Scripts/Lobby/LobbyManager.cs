@@ -402,10 +402,16 @@ namespace Prototype.NetworkLobby
             }
 
             ServerChangeScene(playScene);
+        }
+        
+        override
+        public void OnServerSceneChanged(string scene)
+        {
             gameStarted = true;
             StartCoroutine(StartGameTime(max_game_time));
             StartCoroutine(UnblockAfterDelay(block_time));
             InvokeRepeating("SwitchRole", startup_time, switch_time);
+            GameObject.FindGameObjectWithTag("MapGenerator").gameObject.GetComponent<WallControler>().GenerateMap();
         }
 
         // ----------------- Client callbacks ------------------
@@ -483,7 +489,10 @@ namespace Prototype.NetworkLobby
                 while (true)
                 {
                     int index = Random.Range(0, players.Count);
-                    var obj = players[index].playerControllers[0].gameObject;
+
+                    GameObject obj = null;
+                    if (players[index].playerControllers[0] != null)
+                        obj = players[index].playerControllers[0].gameObject;
 
                     if (obj != null)
                     {
