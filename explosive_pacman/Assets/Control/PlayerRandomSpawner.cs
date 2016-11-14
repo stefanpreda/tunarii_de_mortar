@@ -25,10 +25,8 @@ public class PlayerRandomSpawner : NetworkBehaviour {
         {
             return;
         }
-   
-        bool spawned = false;
 
-        while (!spawned)
+        while (true)
         {
             var random_x = Random.Range(min_x, max_x);
             var random_y = Random.Range(min_y, max_y);
@@ -37,7 +35,7 @@ public class PlayerRandomSpawner : NetworkBehaviour {
             if (colliders == null)
             {
                 transform.position = new Vector3(random_x, random_y, 0);
-                spawned = true;
+                break;
             }
         }
 

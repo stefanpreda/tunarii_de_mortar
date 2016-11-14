@@ -18,12 +18,12 @@ public class ScoreController : NetworkBehaviour {
     private int status;
     private bool invulnerable;
 
-	// Initialization function
-	void Start () {
+    // Initialization function
+    void Start () {
         current_score = start_score;
         status = 0;
         invulnerable = false;
-	}
+    }
 
     public void modifyScore(int way)
     {
@@ -66,8 +66,6 @@ public class ScoreController : NetworkBehaviour {
         invulnerable = false;
     }
 
-    /*TODO: Score must be requested regularly from the server to be accurate(maybe use void update())
-    */
     public void displayScore()
     {
         var scores = GameObject.FindGameObjectWithTag("Server").GetComponent<Prototype.NetworkLobby.LobbyManager>().getScores();

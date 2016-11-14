@@ -13,6 +13,8 @@ public class PlayerController : NetworkBehaviour
     [SyncVar]
     public Color player_color = Color.white;
 
+    public string player_name = "";
+
     [SyncVar]
     bool blockPlayers = true;
 

@@ -31,7 +31,10 @@ public class CollisionController : MonoBehaviour
                     score_controller_target.modifyScore(1);
 
                 if (score_controller_self != null)
-                    score_controller_self.displayScore();
+                {
+                   string scores = GameObject.FindGameObjectWithTag("Server").gameObject.GetComponent<Prototype.NetworkLobby.LobbyManager>().getScoresAsString();
+                   GameObject.FindGameObjectWithTag("ScoreUpdater").gameObject.GetComponent<ScoreDisplayController>().changeScore(scores);
+                }
             }
         }
 
@@ -45,7 +48,10 @@ public class CollisionController : MonoBehaviour
                     score_controller_target.modifyScore(0);
 
                 if (score_controller_self != null)
-                    score_controller_self.displayScore();
+                {
+                   string scores = GameObject.FindGameObjectWithTag("Server").gameObject.GetComponent<Prototype.NetworkLobby.LobbyManager>().getScoresAsString();
+                   GameObject.FindGameObjectWithTag("ScoreUpdater").gameObject.GetComponent<ScoreDisplayController>().changeScore(scores);
+                }
 
             }
         }

@@ -265,6 +265,7 @@ namespace Prototype.NetworkLobby
 		public override void OnDestroyMatch(bool success, string extendedInfo)
 		{
 			base.OnDestroyMatch(success, extendedInfo);
+
 			if (_disconnectServer)
             {
                 StopMatchMaker();
@@ -310,7 +311,7 @@ namespace Prototype.NetworkLobby
         }
 
         public override void OnLobbyServerPlayerRemoved(NetworkConnection conn, short playerControllerId)
-        {
+        {               
             for (int i = 0; i < lobbySlots.Length; ++i)
             {
                 LobbyPlayer p = lobbySlots[i] as LobbyPlayer;
@@ -325,6 +326,7 @@ namespace Prototype.NetworkLobby
 
         public override void OnLobbyServerDisconnect(NetworkConnection conn)
         {
+
             for (int i = 0; i < lobbySlots.Length; ++i)
             {
                 LobbyPlayer p = lobbySlots[i] as LobbyPlayer;
@@ -335,7 +337,6 @@ namespace Prototype.NetworkLobby
                     p.ToggleJoinButton(numPlayers >= minPlayers);
                 }
             }
-
         }
 
         public override bool OnLobbyServerSceneLoadedForPlayer(GameObject lobbyPlayer, GameObject gamePlayer)
@@ -345,6 +346,7 @@ namespace Prototype.NetworkLobby
             LobbyPlayer lobby_player = lobbyPlayer.GetComponent<LobbyPlayer>();
 
             gamePlayer.GetComponent<PlayerController>().player_color = lobby_player.playerColor;
+            gamePlayer.GetComponent<PlayerController>().player_name = lobby_player.playerName;
 
             if (_lobbyHooks)
                 _lobbyHooks.OnLobbyServerSceneLoadedForPlayer(this, lobbyPlayer, gamePlayer);
@@ -412,6 +414,8 @@ namespace Prototype.NetworkLobby
             StartCoroutine(UnblockAfterDelay(block_time));
             InvokeRepeating("SwitchRole", startup_time, switch_time);
             GameObject.FindGameObjectWithTag("MapGenerator").gameObject.GetComponent<WallControler>().GenerateMap();
+            GameObject.FindGameObjectWithTag("ScoreUpdater").gameObject.GetComponent<ScoreDisplayController>().generateScoreOnClients();
+            GameObject.FindGameObjectWithTag("ScoreUpdater").gameObject.GetComponent<ScoreDisplayController>().changeScore(getInitialScoresAsString());
         }
 
         // ----------------- Client callbacks ------------------
@@ -545,10 +549,37 @@ namespace Prototype.NetworkLobby
         {
             scores.Clear();
             for (int i = 0; i < players.Count; i++)
-                scores.Add(players[i].playerControllers[0].gameObject.GetComponent<ScoreController>().getCurrentScore());
+                if (players[i].playerControllers[0] != null && players[i].playerControllers[0].gameObject != null)
+                    scores.Add(players[i].playerControllers[0].gameObject.GetComponent<ScoreController>().getCurrentScore());
             return scores;
         }
 
+        public string getScoresAsString()
+        {
+            string s = "";
+
+            for (int i = 0; i < players.Count; i++)
+                if (players[i].playerControllers[0] != null && players[i].playerControllers[0].gameObject != null)
+                      s = s + players[i].playerControllers[0].gameObject.GetComponent<PlayerController>().player_name + ": " +
+                         players[i].playerControllers[0].gameObject.GetComponent<ScoreController>().getCurrentScore() + "\n";
+            print(s);
+            return s;
+        }
+
+        public string getInitialScoresAsString()
+        {
+            string s = "";
+
+            for(int i = 0; i < lobbySlots.Length; i++)
+            {
+                if (lobbySlots[i] != null)
+                    s = s + (lobbySlots[i] as LobbyPlayer).playerName + ": 50\n";
+            }
+
+
+            print(s);
+            return s;
+        }
 
         public void removePlayer(GameObject obj)
         {
