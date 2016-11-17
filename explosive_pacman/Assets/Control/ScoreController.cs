@@ -81,7 +81,7 @@ public class ScoreController : NetworkBehaviour {
     {
         current_score = win_score;
         Debug.Log("Player " + netId + " WON");
-        Cmd_DestroyAllExceptOne(netId);
+        Cmd_FinalizeGame(netId);
     }
 
     public void loseGame()
@@ -100,7 +100,7 @@ public class ScoreController : NetworkBehaviour {
     }
 
     [Command]
-    public void Cmd_DestroyAllExceptOne(NetworkInstanceId netID)
+    public void Cmd_FinalizeGame(NetworkInstanceId netID)
     {
         Dictionary<NetworkInstanceId, NetworkIdentity> map = new Dictionary<NetworkInstanceId, NetworkIdentity>();
 
@@ -114,7 +114,14 @@ public class ScoreController : NetworkBehaviour {
             if (entry.Key.Value != netID.Value)
             {
                 GameObject theObject = NetworkServer.FindLocalObject(entry.Key);
-                NetworkServer.Destroy(theObject);
+                var body = theObject.GetComponent<Rigidbody2D>();
+                if (body != null && theObject.GetComponent<PlayerController>() == null)
+                {
+                    body.gravityScale = 1;
+                    body.isKinematic = false;
+                }
+                else if (theObject.GetComponent<ScoreDisplaySupport>() == null)
+                    NetworkServer.Destroy(theObject);
             }
         }
     }

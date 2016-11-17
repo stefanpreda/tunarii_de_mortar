@@ -629,7 +629,7 @@ namespace Prototype.NetworkLobby
             if (winner != null)
             {
                 var id = winner.playerControllers[0].gameObject.GetComponent<ScoreController>().netId;
-                winner.playerControllers[0].gameObject.GetComponent<ScoreController>().Cmd_DestroyAllExceptOne(id);
+                winner.playerControllers[0].gameObject.GetComponent<ScoreController>().Cmd_FinalizeGame(id);
             }
         }
     }
